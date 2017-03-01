@@ -1,7 +1,7 @@
 {
-	"link":{
-		"url":"http://blog.sina.com.cn/s/articlelist_1487828712_0_1.html"
-	},
+	"link":[
+		"http://blog.sina.com.cn/s/articlelist_1487828712_0_1.html"
+	],
 	"header":{
 		"cookie":"",
 		"sleep":"1000",

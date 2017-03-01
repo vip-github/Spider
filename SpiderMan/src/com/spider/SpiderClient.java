@@ -6,8 +6,7 @@ import com.spider.core.SpiderMan;
 public class SpiderClient {
 
 	public static void main(String[] args) {
-		//String file = "D:/work/workspace/SpiderMan/resource/example.txt";
-		String file = "D:/work/workspace/SpiderMan/resource/chinawealth.txt";
+		String file = "E:/git/Spider/SpiderMan/resource/dd24.txt";
 		SpiderMan spiderMan = new JsonJobSpiderMan(file);
 		spiderMan.run();
 	}

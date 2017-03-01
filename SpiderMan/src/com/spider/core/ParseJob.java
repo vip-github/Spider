@@ -65,8 +65,15 @@ public class ParseJob {
 									}else{
 										throw new Exception("url不能为空！");
 									}
+								} else if(value instanceof List){
+									String[] links = (String[])((List)value).toArray(new String[]{});
+									if(null!=links && links.length>0){
+										Link link = new Link();
+										link.setUrl(links);
+										job.setLink(link);
+									}
 								} else {
-									throw new Exception("link必须是Map类型！");
+									throw new Exception("link必须是Map或者List类型！");
 								}
 							} else if (key.equals("header")) {
 								if (value instanceof Map) {

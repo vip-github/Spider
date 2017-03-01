@@ -1,0 +1,47 @@
+{
+	"link":[
+		"https://www.dd224.com/htm/piclist1"
+	],
+	"header":{
+		"cookie":"",
+		"sleep":"100",
+		"timeout":"60000",
+		"retry":"3",
+		"charset":"utf-8",
+		"thread":"5"
+	},
+	"page":[
+		{
+			"priority":"0",
+			"type":"sub",
+			"selector":{
+				"css":"div.list ul li:gt(1) a",
+				"xpath":"//a/@href"
+			}
+		},
+		{
+			"priority":"0",
+			"type":"next",
+			"selector":{
+				"css":"div.pagination a:contains(下一页)",
+				"xpath":"//a/@href"
+			}
+		},
+		{
+			"priority":"1",
+			"type":"detail",
+			"field":[{
+				"key":"title",
+				"selector":{
+					"xpath":"//meta[@name='description']/@content"
+				}
+			},{
+				"key":"images",
+				"valueMulti":"true",
+				"selector":{
+					"xpath":"//div[@class='pics']/img/@src"
+				}
+			}]
+		}
+	]
+}
