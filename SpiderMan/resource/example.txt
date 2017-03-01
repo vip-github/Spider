@@ -1,0 +1,66 @@
+{
+	"link":{
+		"url":"http://blog.sina.com.cn/s/articlelist_1487828712_0_1.html"
+	},
+	"header":{
+		"cookie":"",
+		"sleep":"1000",
+		"timeout":"60000",
+		"retry":"3",
+		"charset":"utf-8",
+		"thread":"10"
+	},
+	"page":[
+		{
+			"priority":"0",
+			"type":"next",
+			"selector":{
+				"xpath":"//li[@class='SG_pgnext']/a/@href"
+			}
+		},
+		{
+			"priority":"0",
+			"type":"sub",
+			"selector":{
+				"xpath":"//div[@class='articleList']//span[@class='atc_title']/a/@href"
+			}
+		},
+		{
+			"priority":"1",
+			"type":"detail",
+			"field":[{
+				"key":"title",
+				"selector":{
+					"xpath":"//div[@class='articalTitle']/h2/text()"
+				}
+			},{
+				"key":"author",
+				"selector":{
+					"xpath":"//strong[@id='ownernick']/text()"
+				}
+			},{
+				"key":"tags",
+				"valueMulti":"true",
+				"selector":{
+					"xpath":"//div[@class='articalTag']//td[@class='blog_tag']/h3/a/text()"
+				}
+			},
+			{
+				"key":"publishTime",
+				"selector":{
+					"xpath":"//div[@class='articalTitle']/span[@class='time SG_txtc']/text()",
+					"regex":"(\\d{4}\\D+\\d{1,2}\\D+\\d{1,2} +\\d{1,2}:\\d{1,2}:\\d{1,2})"
+				},
+				"formatter":{
+					"type":"date",
+					"format":"yyyy-MM-dd HH:mm:ss"
+				}
+			},{
+				"key":"content",
+				"selector":{
+					"xpath":"//div[@class='articalContent']/allText()"
+				}
+			}]
+		}
+	]
+}

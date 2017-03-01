@@ -1,0 +1,12 @@
+[{
+	"id":1,
+	"text":"菜单栏",
+	"children":[{
+		"id":11,
+		"text":"网站管理",
+		"state":"open",
+		"attributes":{
+			"url":"page/showSite.jsp"
+		}
+	}]
+}]
