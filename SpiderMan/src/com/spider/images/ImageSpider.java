@@ -44,11 +44,19 @@ public class ImageSpider extends BreadthCrawler {
 				id = document.getString("_id");
 				List<String> images = (List<String>)document.get("images");
 				String domain = document.getString("domain");
+				String type = document.getString("type");
 				String title = document.getString("title");
 				String folder = null;
-				if(!Strings.isNullOrEmpty(domain) && !Strings.isNullOrEmpty(title)){
+				if(!Strings.isNullOrEmpty(domain)){
+					folder = domain;
+				}
+				if(Strings.isNullOrEmpty(type)){
+					type = "其他";
+				}
+				folder+="/"+type.trim();
+				if(!Strings.isNullOrEmpty(title)){
 					title = title.replaceAll(",|，| | |\"|“|!|！", "").trim();
-					folder = domain+"/"+title;
+					folder+="/"+title;
 				}
 				if(null!=images && images.size()>0){
 					logger.info(String.format("【%s】下载图片开始！", id));

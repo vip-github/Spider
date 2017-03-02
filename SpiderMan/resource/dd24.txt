@@ -1,5 +1,9 @@
 {
 	"link":[
+		"https://www.dd224.com/htm/piclist9",
+		"https://www.dd224.com/htm/piclist4",
+		"https://www.dd224.com/htm/piclist7",
+		"https://www.dd224.com/htm/piclist8",
 		"https://www.dd224.com/htm/piclist1"
 	],
 	"header":{
@@ -31,6 +35,12 @@
 			"priority":"1",
 			"type":"detail",
 			"field":[{
+				"key":"type",
+				"selector":{
+					"css":"span.cat_pos_l a:last-of-type",
+					"xpath":"//a/text()"
+				}
+			},{
 				"key":"title",
 				"selector":{
 					"xpath":"//meta[@name='description']/@content"
