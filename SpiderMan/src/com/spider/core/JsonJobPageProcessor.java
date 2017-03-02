@@ -95,6 +95,7 @@ public class JsonJobPageProcessor implements PageProcessor {
 							page.putField("domain", UrlUtils.getDomain(url));
 							page.putField("url", StringUtils.strip(url));
 							page.putField("addTime", DateUtils.current());
+							page.putField("status", 0);
 							for (Map<String, Object> fieldMap : fields) {
 								String fieldKey = (String) fieldMap.get("key");
 								boolean valueMulti = false;

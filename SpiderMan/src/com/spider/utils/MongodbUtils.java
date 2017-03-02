@@ -24,6 +24,7 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 
 public class MongodbUtils {
@@ -166,6 +167,31 @@ public class MongodbUtils {
 			collection.insertOne(document);
 		}
 		saveUrl(document.getString("url"));
+	}
+	
+	/**
+	 * 查询状态为0的Document
+	 */
+	public List<Document> queryImages(){
+		List<Document> list = new ArrayList<>();
+		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
+		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_data_tbname);
+		MongoCursor<Document> cursor = collection.find(new Document("status", 0)).limit(2000).iterator();
+		while(cursor.hasNext()){
+			list.add(cursor.next());
+		}
+		return list;
+	}
+	
+	/**
+	 * 更新状态
+	 * @param id
+	 * @param status
+	 */
+	public void updateStatus(String id, int status){
+		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
+		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_data_tbname);
+		collection.updateOne(new Document("_id", id), new Document("$set", new Document("status", status)));
 	}
 	
 	/**
