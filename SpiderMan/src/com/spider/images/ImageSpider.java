@@ -33,6 +33,7 @@ public class ImageSpider extends BreadthCrawler {
 	
 	@SuppressWarnings("unchecked")
 	public static void run(){
+		logger.info("图片采集程序开始工作！");
 		List<Document> imagesList = mongo.queryImages();
 		for (Document document : imagesList) {
 			String id = null;
@@ -41,7 +42,9 @@ public class ImageSpider extends BreadthCrawler {
 				List<String> images = (List<String>)document.get("images");
 				String domain = document.getString("domain");
 				if(null!=images && images.size()>0){
+					logger.info(String.format("【%s】下载图片开始！", id));
 					ImageSpider.downloadImage(images, domain);
+					logger.info(String.format("【%s】下载图片完成！", id));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -53,6 +56,7 @@ public class ImageSpider extends BreadthCrawler {
 				}
 			}
 		}
+		logger.info("图片采集程序已停止！");
 	}
 	
 	public synchronized static void downloadImage(String src, String domain) throws Exception {
