@@ -3,6 +3,7 @@ package com.spider.images;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -35,6 +36,8 @@ public class ImageSpider extends BreadthCrawler {
 	public static void run(){
 		logger.info("图片采集程序开始工作！");
 		List<Document> imagesList = mongo.queryImages();
+		AtomicInteger counter = new AtomicInteger(0);
+		int size = imagesList.size();
 		for (Document document : imagesList) {
 			String id = null;
 			try {
@@ -60,6 +63,8 @@ public class ImageSpider extends BreadthCrawler {
 					mongo.updateStatus(id, 1);
 					logger.info(String.format("【%s】状态更新成功！", id));
 				}
+				int count = counter.incrementAndGet();
+				logger.info(String.format("图片Document当前已采集完【%s】个，剩余【%s】", count, size-count));
 			}
 		}
 		logger.info("图片采集程序已停止！");
