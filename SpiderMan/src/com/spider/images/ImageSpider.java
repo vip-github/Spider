@@ -49,6 +49,7 @@ public class ImageSpider extends BreadthCrawler {
 			} finally{
 				if(null!=id){
 					mongo.updateStatus(id, 1);
+					logger.info(String.format("【%s】状态更新成功！", id));
 				}
 			}
 		}
