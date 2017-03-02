@@ -20,8 +20,8 @@ import cn.edu.hfut.dmic.webcollector.plugin.berkeley.BreadthCrawler;
 
 public class ImageSpider extends BreadthCrawler {
 	private static Logger logger = LoggerFactory.getLogger(ImageSpider.class);
-	private static final String savePath = "D:/images";
-	private String domain;
+	private static final String savePath = "F:/images";
+	private String folder;
 	private static MongodbUtils mongo = MongodbUtils.getInstance();
 
 	public static void main(String[] args) throws Exception {
@@ -41,9 +41,15 @@ public class ImageSpider extends BreadthCrawler {
 				id = document.getString("_id");
 				List<String> images = (List<String>)document.get("images");
 				String domain = document.getString("domain");
+				String title = document.getString("title");
+				String folder = null;
+				if(!Strings.isNullOrEmpty(domain) && !Strings.isNullOrEmpty(title)){
+					title = title.replaceAll(",|，| | |\"|“|!|！", "").trim();
+					folder = domain+"/"+title;
+				}
 				if(null!=images && images.size()>0){
 					logger.info(String.format("【%s】下载图片开始！", id));
-					ImageSpider.downloadImage(images, domain);
+					ImageSpider.downloadImage(images, folder);
 					logger.info(String.format("【%s】下载图片完成！", id));
 				}
 			} catch (Exception e) {
@@ -59,22 +65,24 @@ public class ImageSpider extends BreadthCrawler {
 		logger.info("图片采集程序已停止！");
 	}
 	
-	public synchronized static void downloadImage(String src, String domain) throws Exception {
-		ImageSpider spider = new ImageSpider("./data", domain);
+	public synchronized static void downloadImage(String src, String folder) throws Exception {
+		ImageSpider spider = new ImageSpider("./data", folder);
 		spider.addSeed(src);
 		spider.start(1);
+		spider.setExecuteInterval(500);
+		spider.setMaxExecuteCount(5);
 	}
 	
-	public synchronized static void downloadImage(List<String> srcs, String domain) throws Exception {
-		ImageSpider spider = new ImageSpider("./data", domain);
+	public synchronized static void downloadImage(List<String> srcs, String folder) throws Exception {
+		ImageSpider spider = new ImageSpider("./data", folder);
 		Links links = new Links(srcs);
 		spider.addSeed(links);
 		spider.start(1);
 	}
 
-	public ImageSpider(String crawlPath, String domain) {
+	public ImageSpider(String crawlPath, String folder) {
 		super(crawlPath, true);
-		this.domain = domain;
+		this.folder = folder;
 		File file = new File(savePath);
 		if(!file.getParentFile().exists()){
 			file.getParentFile().mkdirs();
@@ -90,11 +98,11 @@ public class ImageSpider extends BreadthCrawler {
 			String contentType = page.getResponse().getContentType();
 			if (!Strings.isNullOrEmpty(contentType) && (contentType.contains("image") || contentType.contains("IMAGE"))) {
 				byte[] imageByte = page.getContent();
-				File filePath = buildFilePath(savePath, this.domain, imageByte);
+				File filePath = buildFilePath(savePath, folder, imageByte);
 				if(!filePath.exists()){
 					fos = new FileOutputStream(filePath);
 					fos.write(imageByte);
-					logger.info(String.format("图片已保存=>%s", filePath.getPath()));
+					logger.info(String.format("%s 图片保存成功！", filePath.getPath()));
 				}else{
 					logger.info(String.format("%s 已存在！此次将不会写入硬盘！", filePath.getPath()));
 				}
@@ -116,15 +124,15 @@ public class ImageSpider extends BreadthCrawler {
 	}
 	
 	private String buildFileName(byte[] imageByte){
-		return StringUtils.md5(new String(imageByte)).substring(8, 24);
+		return StringUtils.md5(new String(imageByte));
 	}
 	
-	private File buildFilePath(String savePath, String domain, byte[] imageByte){
+	private File buildFilePath(String savePath, String folder, byte[] imageByte){
 		StringBuilder path = new StringBuilder();
 		path.append(savePath);
 		path.append("/");
-		if(!Strings.isNullOrEmpty(domain)){
-			path.append(domain+"/");
+		if(!Strings.isNullOrEmpty(folder)){
+			path.append(folder+"/");
 		}
 		path.append(buildFileName(imageByte) + ".png");
 		File file = new File(path.toString());
