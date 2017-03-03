@@ -176,7 +176,7 @@ public class MongodbUtils {
 		List<Document> list = new ArrayList<>();
 		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
 		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_data_tbname);
-		MongoCursor<Document> cursor = collection.find(new Document("status", 0)).iterator();
+		MongoCursor<Document> cursor = collection.find(new Document("status", 0)).limit(3000).iterator();
 		while(cursor.hasNext()){
 			list.add(cursor.next());
 		}
