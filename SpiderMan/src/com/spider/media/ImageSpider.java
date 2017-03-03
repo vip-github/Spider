@@ -110,6 +110,7 @@ public class ImageSpider extends BreadthCrawler{
 		spider.addSeed(src);
 		spider.setExecuteInterval(500);
 		spider.setMaxExecuteCount(5);
+		spider.setThreads(50);
 		spider.start(1);
 	}
 	
@@ -119,6 +120,7 @@ public class ImageSpider extends BreadthCrawler{
 		spider.addSeed(links);
 		spider.setExecuteInterval(500);
 		spider.setMaxExecuteCount(5);
+		spider.setThreads(50);
 		spider.start(1);
 	}
 	
