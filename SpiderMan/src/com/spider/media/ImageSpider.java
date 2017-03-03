@@ -23,10 +23,9 @@ import cn.edu.hfut.dmic.webcollector.plugin.berkeley.BreadthCrawler;
 
 public class ImageSpider extends BreadthCrawler{
 	private static Logger logger = LoggerFactory.getLogger(ImageSpider.class);
-	private static final String savePath = "D:/images";
+	private static final String savePath = "F:/images";
 	private String folder;
 	private static MongodbUtils mongo = MongodbUtils.getInstance();
-	public static ImageSpider spider;
 
 	public static void main(String[] args) throws Exception {
 		String src1 = "http://icon.nipic.com/BannerPic/20161102/home/20161102123234_1.jpg";
@@ -36,13 +35,14 @@ public class ImageSpider extends BreadthCrawler{
 	}
 	
 	public static void run() throws Exception{
+		ImageSpider spider = new ImageSpider("./data", savePath);
 		long start = System.currentTimeMillis();
 		logger.info("图片采集程序开始工作！");
 		List<Document> imagesList = mongo.queryImages();
-		ExecutorService service = Executors.newFixedThreadPool(3);
+		ExecutorService service = Executors.newFixedThreadPool(100);
 		CountDownLatch countDownLatch = new CountDownLatch(imagesList.size());
 		for (final Document document : imagesList) {
-			service.submit(spider.new Worker(document, countDownLatch, imagesList.size()));
+			service.execute(spider.new Worker(document, countDownLatch, imagesList.size()));
 		}
 		countDownLatch.await();
 		service.shutdown();
@@ -100,23 +100,25 @@ public class ImageSpider extends BreadthCrawler{
 				}
 				countDownLatch.countDown();
 				long count = countDownLatch.getCount();
-				logger.info(String.format("Document当前已下载【%s】个,剩余【%s】个", count, size-count));
+				logger.info(String.format("%s-Document当前已下载【%s】个,剩余【%s】个", Thread.currentThread().getName(), size-count, count));
 			}
 		}
 	}
 	
 	public synchronized static void downloadImage(String src, String folder) throws Exception {
-		spider = new ImageSpider("./data", folder);
+		ImageSpider spider = new ImageSpider("./data", folder);
 		spider.addSeed(src);
-		spider.start(1);
 		spider.setExecuteInterval(500);
 		spider.setMaxExecuteCount(5);
+		spider.start(1);
 	}
 	
 	public synchronized static void downloadImage(List<String> srcs, String folder) throws Exception {
-		spider = new ImageSpider("./data", folder);
+		ImageSpider spider = new ImageSpider("./data", folder);
 		Links links = new Links(srcs);
 		spider.addSeed(links);
+		spider.setExecuteInterval(500);
+		spider.setMaxExecuteCount(5);
 		spider.start(1);
 	}
 	
