@@ -54,10 +54,11 @@ public class ImageSpider extends BreadthCrawler {
 					type = "其他";
 				}
 				folder+="/"+type.trim();
-				if(!Strings.isNullOrEmpty(title)){
-					title = title.replaceAll(",|，| | |\"|“|!|！", "").trim();
-					folder+="/"+title;
+				if(Strings.isNullOrEmpty(title)){
+					title = "未知标题";
 				}
+				title = title.replaceAll(",|，| | |\"|“|!|！", "").trim();
+				folder+="/"+title;
 				if(null!=images && images.size()>0){
 					logger.info(String.format("【%s】下载图片开始！", id));
 					ImageSpider.downloadImage(images, folder);
