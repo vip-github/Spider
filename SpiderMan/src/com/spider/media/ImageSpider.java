@@ -1,7 +1,6 @@
 package com.spider.media;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,6 +17,7 @@ import cn.edu.hfut.dmic.webcollector.model.CrawlDatums;
 import cn.edu.hfut.dmic.webcollector.model.Links;
 import cn.edu.hfut.dmic.webcollector.model.Page;
 import cn.edu.hfut.dmic.webcollector.plugin.berkeley.BreadthCrawler;
+import cn.edu.hfut.dmic.webcollector.util.FileUtils;
 
 public class ImageSpider extends BreadthCrawler {
 	private static Logger logger = LoggerFactory.getLogger(ImageSpider.class);
@@ -107,15 +107,13 @@ public class ImageSpider extends BreadthCrawler {
 	}
 
 	public void visit(Page page, CrawlDatums crawlDatums) {
-		FileOutputStream fos = null;
 		try {
 			String contentType = page.getResponse().getContentType();
 			if (!Strings.isNullOrEmpty(contentType) && (contentType.contains("image") || contentType.contains("IMAGE"))) {
 				byte[] imageByte = page.getContent();
 				File filePath = buildFilePath(savePath, folder, imageByte);
 				if(!filePath.exists()){
-					fos = new FileOutputStream(filePath);
-					fos.write(imageByte);
+					FileUtils.writeFile(filePath, imageByte);
 					logger.info(String.format("%s 图片保存成功！", filePath.getPath()));
 				}else{
 					logger.info(String.format("%s 已存在！此次将不会写入硬盘！", filePath.getPath()));
@@ -124,16 +122,6 @@ public class ImageSpider extends BreadthCrawler {
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
-		} finally{
-			if(null!=fos){
-				try {
-					fos.flush();
-					fos.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error(e.getMessage());
-				}
-			}
 		}
 	}
 	
