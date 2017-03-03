@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.spider.utils.MongodbUtils;
 import com.spider.utils.StringUtils;
 
@@ -27,22 +26,17 @@ public class ImageSpider extends BreadthCrawler{
 	private String folder;
 	private static MongodbUtils mongo = MongodbUtils.getInstance();
 
-	public static void main(String[] args) throws Exception {
-		String src1 = "http://icon.nipic.com/BannerPic/20161102/home/20161102123234_1.jpg";
-		String src2 = "http://120.img.pp.sohu.com/images/blog/2008/3/24/23/10/1197fc52a47.jpg";
-		String src3 = "http://119.img.pp.sohu.com/images/blog/2008/3/24/23/27/1197fc3d917.jpg";
-		ImageSpider.downloadImage(Lists.newArrayList(src1, src2, src3), "www.baidu.com");
-	}
-	
 	public static void run() throws Exception{
 		ImageSpider spider = new ImageSpider("./data", savePath);
 		long start = System.currentTimeMillis();
 		logger.info("图片采集程序开始工作！");
 		List<Document> imagesList = mongo.queryImages();
-		ExecutorService service = Executors.newFixedThreadPool(100);
+		ExecutorService service = Executors.newFixedThreadPool(1000);
 		CountDownLatch countDownLatch = new CountDownLatch(imagesList.size());
 		for (final Document document : imagesList) {
-			service.execute(spider.new Worker(document, countDownLatch, imagesList.size()));
+			if(document.containsKey("images")){
+				service.execute(spider.new Worker(document, countDownLatch, imagesList.size()));
+			}
 		}
 		countDownLatch.await();
 		service.shutdown();
@@ -111,6 +105,7 @@ public class ImageSpider extends BreadthCrawler{
 		spider.setExecuteInterval(500);
 		spider.setMaxExecuteCount(5);
 		spider.setThreads(50);
+		spider.setResumable(true);
 		spider.start(1);
 	}
 	
@@ -121,6 +116,7 @@ public class ImageSpider extends BreadthCrawler{
 		spider.setExecuteInterval(500);
 		spider.setMaxExecuteCount(5);
 		spider.setThreads(50);
+		spider.setResumable(true);
 		spider.start(1);
 	}
 	
@@ -142,13 +138,16 @@ public class ImageSpider extends BreadthCrawler{
 			String contentType = page.getResponse().getContentType();
 			if (!Strings.isNullOrEmpty(contentType) && (contentType.contains("image") || contentType.contains("IMAGE"))) {
 				byte[] imageByte = page.getContent();
-				File filePath = buildFilePath(savePath, folder, imageByte);
-				if(!filePath.exists()){
-					fos = new FileOutputStream(filePath);
-			        fos.write(imageByte);
-					logger.info(String.format("%s 图片保存成功！", filePath.getPath()));
-				}else{
-					logger.info(String.format("%s 已存在！此次将不会写入硬盘！", filePath.getPath()));
+				if(!mongo.existsImageBinary(imageByte)){
+					File filePath = buildFilePath(savePath, folder, imageByte);
+					if(!filePath.exists()){
+						fos = new FileOutputStream(filePath);
+				        fos.write(imageByte);
+						logger.info(String.format("%s 图片保存成功！", filePath.getPath()));
+						mongo.saveImageBinary(imageByte);
+					}else{
+						logger.info(String.format("%s 已存在！此次将不会写入硬盘！", filePath.getPath()));
+					}
 				}
 			}
 		} catch (Exception e) {

@@ -195,6 +195,34 @@ public class MongodbUtils {
 	}
 	
 	/**
+	 * 查询图片的二进制的md5值是否存在
+	 * @param bytes
+	 * @return
+	 */
+	public boolean existsImageBinary(byte[] bytes){
+		boolean exists = false;
+		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
+		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_image_tbname);
+		String id = StringUtils.md5(new String(bytes));
+		if(null!=collection.find(new Document("_id", id)).first()){
+			exists = true;
+		}
+		return exists;
+	}
+	
+	/**
+	 * 保存图片的二进制md5值
+	 * @param bytes
+	 */
+	public void saveImageBinary(byte[] bytes){
+		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
+		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_image_tbname);
+		String id = StringUtils.md5(new String(bytes));
+		Document idDoc = new Document("_id", id);
+		collection.insertOne(idDoc);
+	}
+	
+	/**
 	 * 以封装成实体的方式保存数据
 	 * @param entity
 	 */
