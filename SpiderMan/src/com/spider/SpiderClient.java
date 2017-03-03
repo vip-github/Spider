@@ -2,7 +2,7 @@ package com.spider;
 
 import com.spider.core.JsonJobSpiderMan;
 import com.spider.core.SpiderMan;
-import com.spider.images.ImageSpider;
+import com.spider.media.ImageSpider;
 
 public class SpiderClient {
 	public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package com.spider.images;
+package com.spider.media;
 
 import java.io.File;
 import java.io.FileOutputStream;
