@@ -9,7 +9,7 @@
 	"header":{
 		"cookie":"",
 		"sleep":"100",
-		"timeout":"120000",
+		"timeout":"180000",
 		"retry":"3",
 		"charset":"utf-8",
 		"thread":"20"

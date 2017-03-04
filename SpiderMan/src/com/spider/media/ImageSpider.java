@@ -153,6 +153,7 @@ public class ImageSpider extends BreadthCrawler{
 					if(!filePath.exists()){
 						fos = new FileOutputStream(filePath);
 				        fos.write(imageByte);
+				        Thread.sleep(50);
 						logger.info(String.format("%s 图片保存成功！", filePath.getPath()));
 						mongo.saveImageBinary(this.domain, imageByte, src);
 					}else{
