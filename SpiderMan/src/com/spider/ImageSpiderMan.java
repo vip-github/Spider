@@ -6,6 +6,7 @@ public class ImageSpiderMan
 {
 	public static void main(String[] args) throws Exception
 	{
-		ImageSpider.run();
+		String domain = "www.susu78.com";
+		ImageSpider.run(domain);
 	}
 }

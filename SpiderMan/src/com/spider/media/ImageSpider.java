@@ -19,18 +19,20 @@ import cn.edu.hfut.dmic.webcollector.model.CrawlDatums;
 import cn.edu.hfut.dmic.webcollector.model.Links;
 import cn.edu.hfut.dmic.webcollector.model.Page;
 import cn.edu.hfut.dmic.webcollector.plugin.berkeley.BreadthCrawler;
+import cn.edu.hfut.dmic.webcollector.util.Config;
 
 public class ImageSpider extends BreadthCrawler{
 	private static Logger logger = LoggerFactory.getLogger(ImageSpider.class);
 	private static final String savePath = "F:/images";
 	private String folder;
 	private static MongodbUtils mongo = MongodbUtils.getInstance();
+	private String domain;
 
-	public static void run() throws Exception{
-		ImageSpider spider = new ImageSpider("./data", savePath);
+	public static void run(String domain) throws Exception{
+		ImageSpider spider = new ImageSpider("./data", savePath, domain);
 		long start = System.currentTimeMillis();
-		logger.info("图片采集程序开始工作！");
-		List<Document> imagesList = mongo.queryImages();
+		logger.info(!Strings.isNullOrEmpty(domain)?domain:""+"图片采集程序开始工作！");
+		List<Document> imagesList = mongo.queryImages(domain);
 		ExecutorService service = Executors.newFixedThreadPool(1000);
 		CountDownLatch countDownLatch = new CountDownLatch(imagesList.size());
 		for (final Document document : imagesList) {
@@ -41,7 +43,7 @@ public class ImageSpider extends BreadthCrawler{
 		countDownLatch.await();
 		service.shutdown();
 		long end = System.currentTimeMillis();
-		logger.info(String.format("图片采集程序已停止！耗时：%s秒", (end-start)/1000));
+		logger.info(!Strings.isNullOrEmpty(domain)?domain:""+String.format("图片采集程序已停止！耗时：%s秒", (end-start)/1000));
 	}
 	
 	public class Worker implements Runnable
@@ -71,17 +73,17 @@ public class ImageSpider extends BreadthCrawler{
 					folder = domain;
 				}
 				if(Strings.isNullOrEmpty(type)){
-					type = "其他";
+					type = "未知分类";
 				}
 				folder+="/"+type.trim();
 				if(Strings.isNullOrEmpty(title)){
 					title = "未知标题";
 				}
-				title = title.replaceAll(",|，| | |\"|“|!|！", "").trim();
+				title = title.replaceAll(",|，| | |\"|“|!|！|?|？|+", "").trim();
 				folder+="/"+title;
 				if(null!=images && images.size()>0){
 					logger.info(String.format("【%s】下载图片开始！", id));
-					ImageSpider.downloadImage(images, folder);
+					ImageSpider.downloadImage(images, folder, domain);
 					logger.info(String.format("【%s】下载图片完成！", id));
 				}
 			} catch (Exception e) {
@@ -99,30 +101,35 @@ public class ImageSpider extends BreadthCrawler{
 		}
 	}
 	
-	public synchronized static void downloadImage(String src, String folder) throws Exception {
-		ImageSpider spider = new ImageSpider("./data", folder);
+	public synchronized static void downloadImage(String src, String folder, String domain) throws Exception {
+		Config.TIMEOUT_CONNECT = 1000*60*3;
+		Config.TIMEOUT_READ = 1000*60*3;
+		ImageSpider spider = new ImageSpider("./data", folder, domain);
 		spider.addSeed(src);
-		spider.setExecuteInterval(500);
+		spider.setExecuteInterval(100);
 		spider.setMaxExecuteCount(5);
 		spider.setThreads(50);
 		spider.setResumable(true);
 		spider.start(1);
 	}
 	
-	public synchronized static void downloadImage(List<String> srcs, String folder) throws Exception {
-		ImageSpider spider = new ImageSpider("./data", folder);
+	public synchronized static void downloadImage(List<String> srcs, String folder, String domain) throws Exception {
+		Config.TIMEOUT_CONNECT = 1000*60*3;
+		Config.TIMEOUT_READ = 1000*60*3;
+		ImageSpider spider = new ImageSpider("./data", folder, domain);
 		Links links = new Links(srcs);
 		spider.addSeed(links);
-		spider.setExecuteInterval(500);
+		spider.setExecuteInterval(100);
 		spider.setMaxExecuteCount(5);
 		spider.setThreads(50);
 		spider.setResumable(true);
 		spider.start(1);
 	}
 	
-	public ImageSpider(String crawlPath, String folder) {
+	public ImageSpider(String crawlPath, String folder, String domain) {
 		super(crawlPath, true);
 		this.folder = folder;
+		this.domain = domain;
 		File file = new File(savePath);
 		if(!file.getParentFile().exists()){
 			file.getParentFile().mkdirs();
@@ -135,6 +142,7 @@ public class ImageSpider extends BreadthCrawler{
 	public void visit(Page page, CrawlDatums crawlDatums) {
 		FileOutputStream fos = null;
 		try {
+			String src = page.getUrl();
 			String contentType = page.getResponse().getContentType();
 			if (!Strings.isNullOrEmpty(contentType) && (contentType.contains("image") || contentType.contains("IMAGE"))) {
 				byte[] imageByte = page.getContent();
@@ -144,7 +152,7 @@ public class ImageSpider extends BreadthCrawler{
 						fos = new FileOutputStream(filePath);
 				        fos.write(imageByte);
 						logger.info(String.format("%s 图片保存成功！", filePath.getPath()));
-						mongo.saveImageBinary(imageByte);
+						mongo.saveImageBinary(this.domain, imageByte, src);
 					}else{
 						logger.info(String.format("%s 已存在！此次将不会写入硬盘！", filePath.getPath()));
 					}

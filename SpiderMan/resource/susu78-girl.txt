@@ -1,0 +1,60 @@
+{
+	"link":[
+		"https://www.susu78.com/htm/girl.htm"
+	],
+	"header":{
+		"cookie":"",
+		"sleep":"100",
+		"timeout":"60000",
+		"retry":"3",
+		"charset":"utf-8",
+		"thread":"20"
+	},
+	"page":[
+		{
+			"priority":"0",
+			"type":"sub",
+			"selector":{
+				"xpath":"//div[@class='mainArea']/table/tbody//a/@href"
+			}
+		},
+		{
+			"priority":"1",
+			"type":"next",
+			"selector":{
+				"css":"div.pageList a:contains(下一页)",
+				"xpath":"//a/@href"
+			}
+		},
+		{
+			"priority":"1",
+			"type":"sub",
+			"selector":{
+				"xpath":"//ul[@class='movieList']/li/a/@href"
+			}
+		},
+		{
+			"priority":"2",
+			"type":"detail",
+			"field":[{
+				"key":"type",
+				"selector":{
+					"css":"div.position a:eq(1)",
+					"xpath":"//a/text()"
+				}
+			},{
+				"key":"title",
+				"selector":{
+					"css":"div.position a:eq(2)",
+					"xpath":"//a/text()"
+				}
+			},{
+				"key":"images",
+				"valueMulti":"true",
+				"selector":{
+					"xpath":"//div[@class='picContent']/img/@src"
+				}
+			}]
+		}
+	]
+}

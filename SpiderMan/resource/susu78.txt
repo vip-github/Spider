@@ -1,0 +1,56 @@
+{
+	"link":[
+		"https://www.susu78.com/htm/piclist1/",
+		"https://www.susu78.com/htm/piclist2/",
+		"https://www.susu78.com/htm/piclist4/",
+		"https://www.susu78.com/htm/piclist6/",
+		"https://www.susu78.com/htm/piclist7/"
+	],
+	"header":{
+		"cookie":"",
+		"sleep":"100",
+		"timeout":"60000",
+		"retry":"3",
+		"charset":"utf-8",
+		"thread":"20"
+	},
+	"page":[
+		{
+			"priority":"0",
+			"type":"sub",
+			"selector":{
+				"xpath":"//ul[@class='textList']/li/a/@href"
+			}
+		},
+		{
+			"priority":"0",
+			"type":"next",
+			"selector":{
+				"css":"div.pageList a:contains(下一页)",
+				"xpath":"//a/@href"
+			}
+		},
+		{
+			"priority":"1",
+			"type":"detail",
+			"field":[{
+				"key":"type",
+				"selector":{
+					"css":"div.position a:last-of-type",
+					"xpath":"//a/text()"
+				}
+			},{
+				"key":"title",
+				"selector":{
+					"xpath":"//meta[@name='description']/@content"
+				}
+			},{
+				"key":"images",
+				"valueMulti":"true",
+				"selector":{
+					"xpath":"//div[@class='picContent']/img/@src"
+				}
+			}]
+		}
+	]
+}

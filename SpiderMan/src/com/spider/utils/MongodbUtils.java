@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.ApplicationConstant;
 import com.admin.entity.ChildrenSite;
 import com.admin.entity.ParentSite;
+import com.google.common.base.Strings;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
@@ -26,6 +27,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+
+import us.codecraft.webmagic.utils.UrlUtils;
 
 public class MongodbUtils {
 	
@@ -138,6 +141,7 @@ public class MongodbUtils {
 		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_url_tbname);
 		String id = StringUtils.md5(url);
 		Document doc = new Document("_id", id);
+		doc.put("domain", UrlUtils.getDomain(url));
 		doc.put("url", url);
 		collection.insertOne(doc);
 		FindIterable<Document> iterable = collection.find(new Document("_id", id));
@@ -172,11 +176,16 @@ public class MongodbUtils {
 	/**
 	 * 查询状态为0的Document
 	 */
-	public List<Document> queryImages(){
+	public List<Document> queryImages(String domain){
 		List<Document> list = new ArrayList<>();
 		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
 		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_data_tbname);
-		MongoCursor<Document> cursor = collection.find(new Document("status", 0)).limit(3000).iterator();
+		Document condition = new Document();
+		condition.put("status", 0);
+		if(!Strings.isNullOrEmpty(domain)){
+			condition.put("domain", domain);
+		}
+		MongoCursor<Document> cursor = collection.find(condition).iterator();
 		while(cursor.hasNext()){
 			list.add(cursor.next());
 		}
@@ -214,12 +223,15 @@ public class MongodbUtils {
 	 * 保存图片的二进制md5值
 	 * @param bytes
 	 */
-	public void saveImageBinary(byte[] bytes){
+	public void saveImageBinary(String domain, byte[] bytes, String src){
 		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
 		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_image_tbname);
 		String id = StringUtils.md5(new String(bytes));
-		Document idDoc = new Document("_id", id);
-		collection.insertOne(idDoc);
+		Document doc = new Document();
+		doc.put("_id", id);
+		doc.put("domain", domain);
+		doc.put("src", src);
+		collection.insertOne(doc);
 	}
 	
 	/**
