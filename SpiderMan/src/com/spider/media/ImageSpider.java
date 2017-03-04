@@ -79,7 +79,7 @@ public class ImageSpider extends BreadthCrawler{
 				if(Strings.isNullOrEmpty(title)){
 					title = "未知标题";
 				}
-				title = title.replaceAll(",|，| | |\"|“|!|！|?|？|+", "").trim();
+				title = title.replaceAll(",|，| | |\"|“|!|！|\\?|？|\\+", "").trim();
 				folder+="/"+title;
 				if(null!=images && images.size()>0){
 					logger.info(String.format("【%s】下载图片开始！", id));
