@@ -102,6 +102,7 @@ public class ImageSpider extends BreadthCrawler{
 	}
 	
 	public synchronized static void downloadImage(String src, String folder, String domain) throws Exception {
+		Config.MAX_RECEIVE_SIZE = 999999999;
 		Config.TIMEOUT_CONNECT = 1000*60*3;
 		Config.TIMEOUT_READ = 1000*60*3;
 		ImageSpider spider = new ImageSpider("./data", folder, domain);
@@ -114,6 +115,7 @@ public class ImageSpider extends BreadthCrawler{
 	}
 	
 	public synchronized static void downloadImage(List<String> srcs, String folder, String domain) throws Exception {
+		Config.MAX_RECEIVE_SIZE = 999999999;
 		Config.TIMEOUT_CONNECT = 1000*60*3;
 		Config.TIMEOUT_READ = 1000*60*3;
 		ImageSpider spider = new ImageSpider("./data", folder, domain);
