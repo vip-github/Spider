@@ -1,4 +1,4 @@
-package com.spider.media;
+package com.spider.video;
 
 import java.io.File;
 import java.io.InputStream;

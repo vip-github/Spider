@@ -1,12 +1,9 @@
 package com.spider.utils;
 
 import java.net.InetSocketAddress;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.bson.Document;
 import org.mongodb.morphia.Datastore;
@@ -17,8 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ApplicationConstant;
-import com.admin.entity.ChildrenSite;
-import com.admin.entity.ParentSite;
 import com.google.common.base.Strings;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -33,46 +28,7 @@ import us.codecraft.webmagic.utils.UrlUtils;
 public class MongodbUtils {
 	
 	public static void main(String[] args) {
-		ParentSite parentSite = new ParentSite();
-		parentSite.setId("456");
-		parentSite.setName("测试");
-		parentSite.setComment("无");
-		parentSite.setType("测试站点");
-		parentSite.setUrl("http://www.baidu.com");
-		parentSite.setAddtime(new Timestamp(System.currentTimeMillis()));
-		Map<String, String> selectors1 = new LinkedHashMap<>();
-		selectors1.put("xpath", "//div[@class='aaa']//a/@href");
-		selectors1.put("css", "//div[@class='aaa']//a/@href");
-		parentSite.setSelectors(selectors1);
-		ChildrenSite site1 = new ChildrenSite();
-		site1.setId("333");
-		site1.setName("aaa");
-		site1.setPid("456");
-		site1.setUrl("http://www.hao123.com");
-		site1.setAddtime(new Timestamp(System.currentTimeMillis()));
-		site1.setComment("无");
-		site1.setRuntime(new Timestamp(System.currentTimeMillis()));
-		Map<String, String> selectors2 = new LinkedHashMap<>();
-		selectors2.put("xpath", "//div[@class='bbb']//a/@href");
-		selectors2.put("css", "//div[@class='bbb']//a/@href");
-		site1.setSelectors(selectors2);
-		ChildrenSite site2 = new ChildrenSite();
-		site2.setId("444");
-		site2.setName("bbb");
-		site2.setPid("456");
-		site2.setUrl("http://www.hao456.com");
-		site2.setAddtime(new Timestamp(System.currentTimeMillis()));
-		site2.setComment("无");
-		site2.setRuntime(new Timestamp(System.currentTimeMillis()));
-		Map<String, String> selectors3 = new LinkedHashMap<>();
-		selectors3.put("xpath", "//div[@class='ccc']//a/@href");
-		selectors3.put("css", "//div[@class='ccc']//a/@href");
-		site2.setSelectors(selectors3);
-		MongodbUtils.getInstance().save(parentSite);
-		MongodbUtils.getInstance().save(site1);
-		MongodbUtils.getInstance().save(site2);
-		
-		//MongodbUtils.getInstance().delete(ParentSite.class, "123");
+		MongodbUtils.getInstance().updateStatus(0);
 	}
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -176,7 +132,7 @@ public class MongodbUtils {
 	/**
 	 * 查询状态为0的Document
 	 */
-	public List<Document> queryImages(String domain){
+	public List<Document> queryImages(String domain, int limit){
 		List<Document> list = new ArrayList<>();
 		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
 		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_data_tbname);
@@ -185,7 +141,7 @@ public class MongodbUtils {
 		if(!Strings.isNullOrEmpty(domain)){
 			condition.put("domain", domain);
 		}
-		MongoCursor<Document> cursor = collection.find(condition).iterator();
+		MongoCursor<Document> cursor = collection.find(condition).limit(limit).iterator();
 		while(cursor.hasNext()){
 			list.add(cursor.next());
 		}
@@ -201,6 +157,22 @@ public class MongodbUtils {
 		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
 		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_data_tbname);
 		collection.updateOne(new Document("_id", id), new Document("$set", new Document("status", status)));
+	}
+	
+	/**
+	 * 更新状态
+	 * @param id
+	 * @param status
+	 */
+	public void updateStatus(int status){
+		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
+		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_data_tbname);
+		MongoCursor<Document> cursor = collection.find().iterator();
+		while(cursor.hasNext()){
+			Document doc = cursor.next();
+			String id = doc.getString("_id");
+			collection.updateOne(new Document("_id", id), new Document("$set", new Document("status", status)));
+		}
 	}
 	
 	/**
