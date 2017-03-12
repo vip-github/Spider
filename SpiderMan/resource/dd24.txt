@@ -3,7 +3,6 @@
 		"https://www.dd224.com/htm/piclist9",
 		"https://www.dd224.com/htm/piclist4",
 		"https://www.dd224.com/htm/piclist7",
-		"https://www.dd224.com/htm/piclist8",
 		"https://www.dd224.com/htm/piclist1"
 	],
 	"header":{
