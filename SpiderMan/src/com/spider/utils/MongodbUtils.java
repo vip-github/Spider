@@ -26,11 +26,6 @@ import com.mongodb.client.MongoDatabase;
 import us.codecraft.webmagic.utils.UrlUtils;
 
 public class MongodbUtils {
-	
-	public static void main(String[] args) {
-		MongodbUtils.getInstance().updateStatus(0);
-	}
-	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private Morphia morphia = new Morphia();
 	private MongoClient mongoClient;
@@ -58,8 +53,8 @@ public class MongodbUtils {
 		try {
 			morphia.mapPackage("com.admin.entity");
 			MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
-			builder.minConnectionsPerHost(10);
-			builder.connectionsPerHost(10);
+			builder.minConnectionsPerHost(100);
+			builder.connectionsPerHost(100);
 			builder.connectTimeout(1000 * 60);
 			builder.socketTimeout(1000 * 60);
 			builder.maxWaitTime(1000 * 60);
