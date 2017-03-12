@@ -149,6 +149,22 @@ public class MongodbUtils {
 	}
 	
 	/**
+	 * 查询状态为0的Document余下数量
+	 * @param domain
+	 * @return
+	 */
+	public long countImages(String domain){
+		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
+		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_data_tbname);
+		Document condition = new Document();
+		condition.put("status", 0);
+		if(!Strings.isNullOrEmpty(domain)){
+			condition.put("domain", domain);
+		}
+		return collection.count(condition);
+	}
+	
+	/**
 	 * 更新状态
 	 * @param id
 	 * @param status
@@ -196,14 +212,25 @@ public class MongodbUtils {
 	 * @param bytes
 	 */
 	public void saveImageBinary(String domain, byte[] bytes, String src){
-		MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
-		MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_image_tbname);
-		String id = StringUtils.md5(new String(bytes));
-		Document doc = new Document();
-		doc.put("_id", id);
-		doc.put("domain", domain);
-		doc.put("src", src);
-		collection.insertOne(doc);
+		try
+		{
+			MongoDatabase database = getDatastore().getMongo().getDatabase(ApplicationConstant.mongo_dbname);
+			MongoCollection<Document> collection = database.getCollection(ApplicationConstant.mongo_image_tbname);
+			String id = StringUtils.md5(new String(bytes));
+			Document doc = new Document();
+			doc.put("_id", id);
+			if(null==collection.find(doc).first()){
+				doc.put("domain", domain);
+				doc.put("src", src);
+				collection.insertOne(doc);
+			}
+		} catch (Exception e)
+		{
+			if(!e.getMessage().contains("E11000 duplicate key error")){
+				e.printStackTrace();
+				logger.error(e.getMessage());
+			}
+		}
 	}
 	
 	/**
