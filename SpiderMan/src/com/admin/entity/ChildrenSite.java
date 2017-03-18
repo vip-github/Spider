@@ -1,7 +1,6 @@
 package com.admin.entity;
 
 import java.sql.Timestamp;
-import java.util.Map;
 
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
@@ -14,6 +13,8 @@ public class ChildrenSite {
 	private String id;
 	
 	private String pid;//父站点id
+	
+	private String pname;//父站点名称
 	
 	private String url;//url链接
 	
@@ -28,8 +29,6 @@ public class ChildrenSite {
 	private Timestamp runtime;//最后一次抓取时间
 	
 	private String type;//站点类型
-	
-	private Map<String, String> selectors;//选择器
 	
 	private String cycle;//采集周期
 
@@ -97,19 +96,21 @@ public class ChildrenSite {
 		this.type = type;
 	}
 
-	public Map<String, String> getSelectors() {
-		return selectors;
-	}
-
-	public void setSelectors(Map<String, String> selectors) {
-		this.selectors = selectors;
-	}
-
 	public String getCycle() {
 		return cycle;
 	}
 
 	public void setCycle(String cycle) {
 		this.cycle = cycle;
+	}
+
+	public String getPname()
+	{
+		return pname;
+	}
+
+	public void setPname(String pname)
+	{
+		this.pname = pname;
 	}
 }

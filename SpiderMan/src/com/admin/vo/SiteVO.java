@@ -1,13 +1,13 @@
 package com.admin.vo;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * 站点VO,用于传值
  * @date   2017年2月22日 下午2:47:51
  */
 public class SiteVO {
-	private String pid;//父站点id
+	private String id;//站点id
 	
 	private String url;//url链接
 	
@@ -17,17 +17,21 @@ public class SiteVO {
 	
 	private String type;//站点类型
 	
-	private Map<String, String> selectors;//选择器
-	
 	private String cycle;//采集周期
-
-	public String getPid() {
-		return pid;
-	}
-
-	public void setPid(String pid) {
-		this.pid = pid;
-	}
+	
+	private Integer threads; //线程数量
+	
+	private String cookie; //cookie
+	
+	private String charset; //字符编码
+	
+	private Integer sleep; //休眠时间
+	
+	private Integer timeout;//超时时间
+	
+	private Integer retry;//重试次数
+	
+	private List<Page> pages;//页面配置
 
 	public String getUrl() {
 		return url;
@@ -61,19 +65,99 @@ public class SiteVO {
 		this.type = type;
 	}
 
-	public Map<String, String> getSelectors() {
-		return selectors;
-	}
-
-	public void setSelectors(Map<String, String> selectors) {
-		this.selectors = selectors;
-	}
-
 	public String getCycle() {
 		return cycle;
 	}
 
 	public void setCycle(String cycle) {
 		this.cycle = cycle;
+	}
+
+	public String getId()
+	{
+		return id;
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+
+	public List<Page> getPages()
+	{
+		return pages;
+	}
+
+	public void setPages(List<Page> pages)
+	{
+		this.pages = pages;
+	}
+	
+	public Integer getThreads()
+	{
+		return threads;
+	}
+
+	public void setThreads(Integer threads)
+	{
+		this.threads = threads;
+	}
+
+	public String getCookie()
+	{
+		return cookie;
+	}
+
+	public void setCookie(String cookie)
+	{
+		this.cookie = cookie;
+	}
+
+	public String getCharset()
+	{
+		return charset;
+	}
+
+	public void setCharset(String charset)
+	{
+		this.charset = charset;
+	}
+
+	public Integer getSleep()
+	{
+		return sleep;
+	}
+
+	public void setSleep(Integer sleep)
+	{
+		this.sleep = sleep;
+	}
+
+	public Integer getTimeout()
+	{
+		return timeout;
+	}
+
+	public void setTimeout(Integer timeout)
+	{
+		this.timeout = timeout;
+	}
+
+	public Integer getRetry()
+	{
+		return retry;
+	}
+
+	public void setRetry(Integer retry)
+	{
+		this.retry = retry;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "SiteVO [id=" + id + ", url=" + url + ", name=" + name + ", comment=" + comment + ", type=" + type
+				+ ", cycle=" + cycle + ", threads=" + threads + ", cookie=" + cookie + ", charset=" + charset
+				+ ", sleep=" + sleep + ", timeout=" + timeout + ", retry=" + retry + ", pages=" + pages + "]";
 	}
 }

@@ -54,7 +54,9 @@ public class ImageSpiderWorker implements Runnable
 					{
 						title = "未知标题";
 					}
-					title = title.replaceAll(",|，| | |\"|“|!|！|\\?|？|\\+", "").trim();
+					title = title.replaceAll(",|，| | |\"|“|!|！|\\?|？|\\+|:|：|/|\\|\\.", "-").trim();
+					title = title.replace("&nbsp;", "").trim();
+					title = title.replace("-", "").trim();
 					folder += "/" + title;
 					if (null != images && images.size() > 0)
 					{

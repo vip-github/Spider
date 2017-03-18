@@ -1,12 +1,15 @@
 package com.admin.controller;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +20,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.admin.entity.ChildrenSite;
 import com.admin.entity.ParentSite;
 import com.admin.service.SiteService;
+import com.admin.vo.Page;
+import com.admin.vo.Selector;
+import com.admin.vo.SiteVO;
 import com.alibaba.fastjson.JSON;
 
 /**
@@ -28,6 +34,8 @@ import com.alibaba.fastjson.JSON;
 @Controller
 public class SiteController
 {
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	private SiteService siteService;
 
@@ -52,6 +60,7 @@ public class SiteController
 		} catch (Exception e)
 		{
 			e.printStackTrace();
+			logger.error(e.toString());
 		}
 		return json;
 	}
@@ -68,6 +77,7 @@ public class SiteController
 		} catch (Exception e)
 		{
 			e.printStackTrace();
+			logger.error(e.toString());
 		}
 		return json;
 	}
@@ -89,61 +99,16 @@ public class SiteController
 		} catch (Exception e)
 		{
 			e.printStackTrace();
+			logger.error(e.toString());
 		}
 		return json;
 	}
 
-	@RequestMapping(value = "/saveParentSite", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8;")
-	@ResponseBody
-	public String saveParentSite(String pname, String purl, String ptype, String pSelectorKey1, String pSelectorKey2,
-			String pSelectorKey3, String pSelectorValue1, String pSelectorValue2, String pSelectorValue3, String pcomment,
-			String pcycle)
-	{
-		String json = "ok";
-		try
-		{
-			if (StringUtils.isNotBlank(purl) && StringUtils.isNotBlank(pname) && StringUtils.isNotBlank(ptype)
-					&& StringUtils.isNotBlank(pSelectorKey1) && StringUtils.isNotBlank(pSelectorValue1))
-			{
-				ParentSite object = new ParentSite();
-				object.setId(com.spider.utils.StringUtils.md5(purl));
-				object.setName(StringUtils.strip(pname));
-				object.setType(StringUtils.strip(ptype));
-				object.setUrl(StringUtils.strip(purl));
-				object.setAddtime(new Timestamp(new Date().getTime()));
-				object.setComment(pcomment);
-				object.setCycle(pcycle);
-				Map<String, String> selectors = new LinkedHashMap<>();
-				if(StringUtils.isNotBlank(pSelectorKey1) && StringUtils.isNotBlank(pSelectorValue1))
-				{
-					selectors.put(pSelectorKey1, StringUtils.strip(pSelectorValue1));
-				}
-				if(StringUtils.isNotBlank(pSelectorKey2) && StringUtils.isNotBlank(pSelectorValue2))
-				{
-					selectors.put(pSelectorKey2, StringUtils.strip(pSelectorValue2));
-				}
-				if(StringUtils.isNotBlank(pSelectorKey3) && StringUtils.isNotBlank(pSelectorValue3))
-				{
-					selectors.put(pSelectorKey3, StringUtils.strip(pSelectorValue3));
-				}
-				if(selectors.size()>0)
-				{
-					object.setSelectors(selectors);
-					siteService.save(object);
-				}
-			}
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		return json;
-	}
-	
 	@RequestMapping(value = "/saveChildrenSite", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8;")
 	@ResponseBody
-	public String saveChildrenSite(@RequestParam(required=true)String pid, String cname, String curl, String ctype, String cSelectorKey1, String cSelectorKey2,
-			String cSelectorKey3, String cSelectorValue1, String cSelectorValue2, String cSelectorValue3, String ccomment,
-			String ccycle)
+	public String saveChildrenSite(@RequestParam(required = true) String pid, String cname, String curl, String ctype,
+			String cSelectorKey1, String cSelectorKey2, String cSelectorKey3, String cSelectorValue1,
+			String cSelectorValue2, String cSelectorValue3, String ccomment, String ccycle)
 	{
 		String json = "ok";
 		try
@@ -161,28 +126,124 @@ public class SiteController
 				object.setCycle(ccycle);
 				object.setPid(pid);
 				Map<String, String> selectors = new LinkedHashMap<>();
-				if(StringUtils.isNotBlank(cSelectorKey1) && StringUtils.isNotBlank(cSelectorValue1))
+				if (StringUtils.isNotBlank(cSelectorKey1) && StringUtils.isNotBlank(cSelectorValue1))
 				{
 					selectors.put(cSelectorKey1, StringUtils.strip(cSelectorValue1));
 				}
-				if(StringUtils.isNotBlank(cSelectorKey2) && StringUtils.isNotBlank(cSelectorValue2))
+				if (StringUtils.isNotBlank(cSelectorKey2) && StringUtils.isNotBlank(cSelectorValue2))
 				{
 					selectors.put(cSelectorKey2, StringUtils.strip(cSelectorValue2));
 				}
-				if(StringUtils.isNotBlank(cSelectorKey3) && StringUtils.isNotBlank(cSelectorValue3))
+				if (StringUtils.isNotBlank(cSelectorKey3) && StringUtils.isNotBlank(cSelectorValue3))
 				{
 					selectors.put(cSelectorKey3, StringUtils.strip(cSelectorValue3));
 				}
-				if(selectors.size()>0)
+				if (selectors.size() > 0)
 				{
-					object.setSelectors(selectors);
+					// object.setSelectors(selectors);
 					siteService.save(object);
 				}
 			}
 		} catch (Exception e)
 		{
 			e.printStackTrace();
+			logger.error(e.toString());
 		}
 		return json;
+	}
+
+	@RequestMapping(value = "/saveParentSite", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8;")
+	@ResponseBody
+	public String saveParentSite(SiteVO vo)
+	{
+		String result = "error";
+		if (null != vo && StringUtils.isNotBlank(vo.getUrl()) && StringUtils.isNotBlank(vo.getName()))
+		{
+			try
+			{
+				ParentSite parentSite = new ParentSite();
+				parentSite.setId(com.spider.utils.StringUtils.md5(vo.getUrl()));
+				parentSite.setName(StringUtils.stripToEmpty(vo.getName()));
+				parentSite.setUrl(StringUtils.stripToEmpty(vo.getUrl()));
+				parentSite.setType(StringUtils.stripToEmpty(vo.getType()));
+				parentSite.setCycle(Integer.parseInt(StringUtils.stripToEmpty(vo.getCycle())));
+				parentSite.setComment(StringUtils.stripToEmpty(vo.getComment()));
+				parentSite.setAddtime(new Timestamp(System.currentTimeMillis()));
+				if (StringUtils.isNotBlank(vo.getCharset()) && !vo.getCharset().equals("自动设置"))
+				{
+					parentSite.setCharset(vo.getCharset());
+				}
+				if (null != vo.getRetry() && vo.getRetry() > 0)
+				{
+					parentSite.setRetry(vo.getRetry());
+				}
+				if (null != vo.getSleep() && vo.getSleep() > 0)
+				{
+					parentSite.setSleep(vo.getSleep());
+				}
+				if (null != vo.getThreads() && vo.getThreads() > 0)
+				{
+					parentSite.setThreads(vo.getThreads());
+				}
+				if (null != vo.getTimeout() && vo.getTimeout() > 0)
+				{
+					parentSite.setTimeout(vo.getTimeout());
+				}
+				if (StringUtils.isNotBlank(vo.getCookie()))
+				{
+					parentSite.setCookie(vo.getCookie());
+				}
+				List<Map<String, Object>> pages = new ArrayList<>();
+				if (null != vo.getPages() && vo.getPages().size() > 0)
+				{
+					for (Page page : vo.getPages())
+					{
+						Map<String, Object> pageMap = new LinkedHashMap<>();
+						if (null != page && null != page.getSelectors() && page.getSelectors().size() > 0)
+						{
+							String priority = page.getPriority();
+							String type = page.getType();
+							List<Selector> selectors = page.getSelectors();
+							pageMap.put("priority", StringUtils.stripToEmpty(priority));
+							pageMap.put("type", StringUtils.stripToEmpty(type));
+							Map<String, String> selectorsMap = new LinkedHashMap<>();
+							for (Selector selector : selectors)
+							{
+								selectorsMap.put(StringUtils.stripToEmpty(selector.getKey()),
+										StringUtils.stripToEmpty(selector.getValue()));
+							}
+							pageMap.put("selector", selectorsMap);
+							pages.add(pageMap);
+						}
+					}
+				}
+				parentSite.setPages(pages);
+				siteService.save(parentSite);
+				logger.info(String.format("父站点保存成功！%s", parentSite));
+				result = "ok";
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				logger.error(e.toString());
+			}
+		}
+		return result;
+	}
+
+	@RequestMapping(value = "/deleteParentSite")
+	@ResponseBody
+	public String deleteParentSite(String id)
+	{
+		String result = "error";
+		if (StringUtils.isNotBlank(id))
+		{
+			boolean res = siteService.deleteParent(id);
+			if (res)
+			{
+				logger.info(String.format("id:%s 父站点删除成功！", id));
+				result = "ok";
+			}
+		}
+		return result;
 	}
 }
