@@ -7,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.admin.dao.SiteDao;
-import com.admin.entity.ChildrenSite;
-import com.admin.entity.ParentSite;
+import com.admin.entity.WebSite;
 import com.google.common.base.Strings;
 
 @Service
@@ -17,15 +16,15 @@ public class SiteService
 	@Autowired
 	private SiteDao siteDao;
 
-	public List<ParentSite> getParentSiteList(int skip, int limit)
+	public List<WebSite> getParentSiteList(int skip, int limit)
 	{
-		List<ParentSite> results = new ArrayList<>();
-		List<?> list = siteDao.find(ParentSite.class, skip, limit);
+		List<WebSite> results = new ArrayList<>();
+		List<?> list = siteDao.find(WebSite.class, skip, limit);
 		if (null != list && list.size() > 0)
 		{
 			for (Object object : list)
 			{
-				results.add((ParentSite) object);
+				results.add((WebSite) object);
 			}
 		}
 		return results;
@@ -33,21 +32,21 @@ public class SiteService
 
 	public long getChildrenSiteCount(String pid)
 	{
-		return siteDao.count(ChildrenSite.class, "pid", pid);
+		return siteDao.count(WebSite.class, "pid", pid);
 	}
 
-	public List<ChildrenSite> getChildrenSiteList(String pid, int skip, int limit)
+	public List<WebSite> getChildrenSiteList(String pid, int skip, int limit)
 	{
-		List<ChildrenSite> results = new ArrayList<>();
-		ParentSite parentSite = (ParentSite) siteDao.findById(ParentSite.class, pid);
+		List<WebSite> results = new ArrayList<>();
+		WebSite parentSite = (WebSite) siteDao.findById(WebSite.class, pid);
 		if (null != parentSite)
 		{
-			List<?> list = siteDao.find(ChildrenSite.class, "pid", pid, skip, limit);
+			List<?> list = siteDao.find(WebSite.class, "pid", pid, skip, limit);
 			if (null != list && list.size() > 0)
 			{
 				for (Object object : list)
 				{
-					ChildrenSite childrenSite = (ChildrenSite) object;
+					WebSite childrenSite = (WebSite) object;
 					if (Strings.isNullOrEmpty(childrenSite.getComment())
 							&& !Strings.isNullOrEmpty(parentSite.getComment()))
 					{
@@ -61,7 +60,6 @@ public class SiteService
 					{
 						childrenSite.setType(parentSite.getType());
 					}
-					childrenSite.setPname(parentSite.getName());
 					results.add(childrenSite);
 				}
 			}
@@ -74,8 +72,13 @@ public class SiteService
 		siteDao.save(object);
 	}
 
-	public boolean deleteParent(String id)
+	public boolean delete(String id)
 	{
-		return siteDao.delete(ParentSite.class, id);
+		return siteDao.delete(WebSite.class, id);
+	}
+	
+	public WebSite getSite(String id)
+	{
+		return (WebSite)siteDao.findById(WebSite.class, id);
 	}
 }

@@ -19,10 +19,10 @@ $(function(){
 	        {field:'id',title:'id',width:100,align:'center',checkbox:true},
 	        {field:'name',title:'名称',width:100,align:'center'},
 	        {field:'type',title:'类型',width:80,align:'center'},
-	        {field:'url',title:'链接',width:300,align:'center'},
-	        {field:'addtime',title:'添加时间',width:130,align:'center'},
-	        {field:'threads',title:'线程数',width:50,align:'center'},
+	        {field:'url',title:'链接',width:400,align:'center'},
+	        {field:'addTime',title:'添加时间',width:130,align:'center'},
 	        {field:'cycle',title:'采集周期',width:80,align:'center'},
+	        {field:'threads',title:'线程数',width:80,align:'center'},
 	        {field:'comment',title:'备注',width:200,align:'center'}
 	    ]],
 	    toolbar: ['-',{
@@ -115,7 +115,7 @@ $(function(){
 						var comment = checkedRows[0].comment;
 						var cycle = checkedRows[0].cycle;
 						$("#cname").val(name);
-						$("#ccomment").textbox("setText", comment);
+						$("#ccomment").textbox("setValue", comment);
 						if(null!=type && ''!=type){
 							$("#ctype").combobox('select', type);
 						}
@@ -136,10 +136,18 @@ $(function(){
 		view: detailview,
 	    detailFormatter: function(rowIndex, rowData){
 	    	var result = "<table><thead><tr><th style='text-align:center'>类型</th><th style='text-align:center'>值</th></tr></thead>"
-	    	var selectors = rowData.selectors;
-	    	if(null!=selectors && undefined!=selectors){
-	    		for(var selector in selectors){
-	    			result+="<tr>&nbsp;<td style='text-align:center'>&nbsp;&nbsp;"+selector+"&nbsp;&nbsp;</td><td style='text-align:center'>&nbsp;&nbsp;"+selectors[selector]+"&nbsp;&nbsp;</td>&nbsp;</tr>";
+	    	var pages = rowData.pages;
+	    	if(null!=pages && undefined!=pages){
+	    		for(i=0; i<pages.length; i++){
+	    			var page = pages[i];
+	    			var type = page.type;
+	    			if(type=='next'){
+	    				type = "翻页";
+	    			}else{
+	    				type = "子页";
+	    			}
+	    			var selector = JSON.stringify(page.selector);
+	    			result+="<tr>&nbsp;<td style='text-align:center'>&nbsp;&nbsp;"+type+"&nbsp;&nbsp;</td><td style='text-align:center'>&nbsp;&nbsp;"+selector+"&nbsp;&nbsp;</td>&nbsp;</tr>";
 	    		}
 	    	}
 	    	result+="</table>";
@@ -271,9 +279,12 @@ function clear2(){
 
 function addPage(){
 	var tableNumber = $("#pageArea table[id^='pageTable']").length;
-	var content = "<fieldset><legend>页面配置信息</legend><table id='pageTable"+tableNumber+"'><tr><td>优先级：<select id='pagePriority' name='pages["+tableNumber+"].priority'><option value='0' selected='selected'>0</option><option value='1'>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option><option value='5'>5</option></select>&nbsp;&nbsp;&nbsp;&nbsp;类型：<select name='pages["+tableNumber+"].type'><option value='sub' selected='selected'>子页面</option><option value='next'>下一页</option><option value='detail'>详细页</option></select></td></tr><tr><td><table id='selectorTable"+tableNumber+"'><tr><td>选择器：</td><td width='5px;'></td><td><button type='button' onclick='addSelector("+tableNumber+")'>新增</button><button type='button' style='margin-left:5px;' onclick='removeSelector("+tableNumber+")'>移除</button></td></tr><tr><td><select name='pages["+tableNumber+"].selectors[0].key'><option value='xpath' selected='selected'>xpath</option><option value='css'>css</option><option value='regex'>regex</option></select></td><td width='5px;'></td><td><input name='pages["+tableNumber+"].selectors[0].value' style='width:220px;'></td></tr></table></td></tr></table></fieldset>";
-	$("#pageArea").append(content);
-	$($("#pageArea table[id^='pageTable']")[tableNumber]).find("select#pagePriority option:eq("+tableNumber+")").attr("selected", "selected");
+	if(tableNumber<2){
+		var content = "<fieldset><legend>页面配置信息</legend><table id='pageTable"+tableNumber+"'><tr><td>优先级：<select id='pagePriority' name='pages["+tableNumber+"].priority'><option value='0' selected='selected'>0</option><option value='1'>1</option><option value='2'>2</option></select>&nbsp;&nbsp;&nbsp;&nbsp;类型：<select name='pages["+tableNumber+"].type'><option value='sub' selected='selected'>子页面</option><option value='next'>下一页</option></select></td></tr><tr><td><table id='selectorTable"+tableNumber+"'><tr><td>选择器：</td><td width='5px;'></td><td><button type='button' onclick='addSelector("+tableNumber+")'>新增</button><button type='button' style='margin-left:5px;' onclick='removeSelector("+tableNumber+")'>移除</button></td></tr><tr><td><select name='pages["+tableNumber+"].selectors[0].key'><option value='xpath' selected='selected'>xpath</option><option value='css'>css</option><option value='regex'>regex</option></select></td><td width='5px;'></td><td><input name='pages["+tableNumber+"].selectors[0].value' style='width:220px;'></td></tr></table></td></tr></table></fieldset>";
+		$("#pageArea").append(content);
+	}else{
+		$.messager.alert('操作失败','最多只能配置2个页面！','warning');
+	}
 }
 
 function removePage(){
@@ -291,7 +302,7 @@ function addSelector(index){
 		var content = "<tr><td><select name='pages["+index+"].selectors["+(length-1)+"].key'><option value='xpath' selected='selected'>xpath</option><option value='css'>css</option><option value='regex'>regex</option></select></td><td width='5px;'></td><td><input name='pages["+index+"].selectors["+(length-1)+"].value' style='width:220px;'></td></tr>";
 		$("#selectorTable"+index).append(content);
 	}else{
-		$.messager.alert('操作未成功','最多只能配置3个选择器！','warning');
+		$.messager.alert('操作失败','最多只能配置3个选择器！','warning');
 	}
 }
 
@@ -303,6 +314,16 @@ function removeSelector(index){
 		$.messager.alert('操作未成功','至少需要留一行！','warning');
 	}
 }
+
+function addSelector2(){
+	var content = "<div id='property'><br/><hr style='height:2px;border:none;border-top:2px dotted #185598;'/>属性名称：<input name='key' style='width:60px;margin-left:6px;'>&nbsp;属性抽取：<select style='margin-left:6px;'><option value='xpath' selected='selected'>xpath</option><option value='css'>css</option><option value='regex'>regex</option></select><input name='value' style='width:160px;margin-left:6px;'><select style='margin-left:6px;'><option value='css' selected='selected'>css</option><option value='xpath'>xpath</option><option value='regex'>regex</option></select><input name='value' style='width:160px;margin-left:6px;'><select style='margin-left:6px;'><option value='regex' selected='selected'>regex</option><option value='xpath'>xpath</option><option value='css'>css</option></select><input name='value' style='width:160px;margin-left:6px;'></div>";
+	$("#childrenDiv").append(content);
+}
+
+function removeSelector2(){
+	$("#property").last().remove();
+}
+
 </script>
 </head>
 <table id="siteDatagrid"></table>
@@ -327,20 +348,20 @@ function removeSelector(index){
 	     		<input name="url" class="easyui-validatebox" data-options="required:true,validType:'url'" style="width:275px;">
 	     		<br/><br/>
 	     		&nbsp;Cookie：
-	     		<input name="cookie" style="width:275px;">
+	     		<input name="header.cookie" style="width:275px;">
 	     		<br/><br/>
 	     		字符编码：
-	     		<input name="charset" style="width:95px;" value="自动设置">
+	     		<input name="header.charset" style="width:95px;" value="自动设置">
 	     		&nbsp;休眠时间：
-	     		<input name="sleep" class="easyui-validatebox" data-options="required:true,validType:'digits'" style="width:95px;" value="500">
+	     		<input name="header.sleep" class="easyui-validatebox" data-options="required:true,validType:'digits'" style="width:95px;" value="500">
 	     		<br/><br/>
 	     		超时时间：
-	     		<input name="timeout" style="width:95px;" data-options="required:true,validType:'digits'" value="500">
+	     		<input name="header.timeout" style="width:95px;" data-options="required:true,validType:'digits'" value="500">
 	     		&nbsp;重试次数：
-	     		<input name="retry" style="width:95px;" data-options="required:true,validType:'digits'" value="3">
+	     		<input name="header.retry" style="width:95px;" data-options="required:true,validType:'digits'" value="3">
 	     		<br/><br/>
 	     		线程数量：
-	     		<input name="threads" style="width:95px;" data-options="required:true,validType:'digits'" value="10">
+	     		<input name="header.threads" style="width:95px;" data-options="required:true,validType:'digits'" value="10">
 	     		<br/><br/>
 	     		站点类型：
 	    		<select class="easyui-combobox" name="type" data-options="panelHeight:'auto',width:120,required:true">
@@ -380,11 +401,10 @@ function removeSelector(index){
 							    <option value="4">4</option>
 							    <option value="5">5</option>
 							</select>
-				     		&nbsp;&nbsp;&nbsp;&nbsp;类型：
+				     		&nbsp;&nbsp;&nbsp;类型：
 				     		<select name="pages[0].type">
 							    <option value="sub" selected="selected">子页面</option>
 							    <option value="next">下一页</option>
-							    <option	value="detail">详细页</option>
 							</select>
 	     				</td>
 	     			</tr>
@@ -430,52 +450,28 @@ function removeSelector(index){
 	 </form>
 </div>
 <div id="addChildrenSiteWindow" class="easyui-window" title="新增子站点" 
-        style="width:350px;height:480px;padding:10px;background:#fafafa;"
+        style="width:990px;height:580px;padding:10px;background:#fafafa;"
         data-options="iconCls:'icon-add',closable:true,
                 collapsible:false,minimizable:false,maximizable:false,closed:true,modal:true">
      <form id="childrenSiteForm" method="post">
 	     <fieldset>
 	     	<legend align="center">子站点信息录入</legend>
-	     	<div>
+	     	<div id="childrenDiv">
 	     		<input id="hpid" name="pid" type="hidden" value="">
 	     		站点名称：
-	     		<input id="cname" name="cname" class="easyui-validatebox" data-options="required:true" style="width:190px;">
+	     		<input id="cname" name="name" class="easyui-validatebox" data-options="required:true" style="width:190px;">
 	     		<br/><br/>
 	     		站点链接：
-	     		<input id="curl" name="curl" class="easyui-validatebox" data-options="required:true" style="width:190px;">
+	     		<input id="curl" name="url" class="easyui-validatebox" data-options="required:true" style="width:190px;">
 	     		<br/><br/>
 	     		站点类型：
-	    		<select class="easyui-combobox" id="ctype" name="ctype" data-options="panelHeight:'auto',width:120,required:true">
+	    		<select class="easyui-combobox" id="ctype" name="type" data-options="panelHeight:'auto',width:120,required:true">
 				    <option value="aa" selected="selected">aa</option>
 				    <option value="bb">bb</option>
 				    <option	value="cc">cc</option>
 				</select>
-	     		<br/><br/>
-	     		选择器：
-	     		<br/>
-	     		<select class="easyui-combobox" id="cSelectorKey1" name="cSelectorKey1" data-options="panelHeight:'auto',width:60,required:true">
-				    <option value="xpath" selected="selected">xpath</option>
-				    <option value="css">css</option>
-				    <option	value="regex">regex</option>
-				</select>
-				<input id="cSelectorValue1" name="cSelectorValue1" class="easyui-validatebox" data-options="required:true" style="width:195px;">
-				<br/><br/>
-				<select class="easyui-combobox" id="cSelectorKey2" name="cSelectorKey2" data-options="panelHeight:'auto',width:60">
-				    <option value="css" selected="selected">css</option>
-				    <option value="xpath">xpath</option>
-				    <option	value="regex">regex</option>
-				</select>
-				<input id="cSelectorValue2" name="cSelectorValue2" class="easyui-textbox" style="width:200px;">
-				<br/><br/>
-				<select id="pSelectorKey3" name="cSelectorKey3" class="easyui-combobox" data-options="panelHeight:'auto',width:60">
-				    <option	value="regex" selected="selected">regex</option>
-				    <option value="xpath">xpath</option>
-				    <option value="css">css</option>
-				</select>
-				<input id="cSelectorValue3" name="cSelectorValue3" class="easyui-textbox" style="width:200px;">
-				<br/><br/>
-				周期：
-				<select name="ccycle" class="easyui-combobox" data-options="panelHeight:'auto',width:100,required:true">
+				&nbsp;周期：
+				<select id="ccycle" name="cycle" class="easyui-combobox" data-options="panelHeight:'auto',width:100,required:true">
 				    <option value="10" selected="selected">10分钟</option>
 				    <option value="60">1小时</option>
 				    <option	value="720">12小时</option>
@@ -484,7 +480,12 @@ function removeSelector(index){
 				</select>
 				<br/><br/>
 				备注：
-				<input id="ccomment" name="ccomment" class="easyui-textbox" data-options="width:225,height:50,multiline:true">
+				<input id="ccomment" name="comment" class="easyui-textbox" data-options="width:525,height:60,multiline:true">
+	     		<br/><br/>
+	     		页面属性：
+	     		<a class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="addSelector2()">新增属性</a>
+	     		&nbsp;
+	     		<a class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="removeSelector2()">移除属性</a>
 	     	</div>
 	     </fieldset>
 	     <div align="center" style="margin-top: 10px;">

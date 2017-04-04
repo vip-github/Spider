@@ -6,7 +6,9 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +19,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.admin.entity.ChildrenSite;
-import com.admin.entity.ParentSite;
+import com.admin.entity.Header;
+import com.admin.entity.WebSite;
 import com.admin.service.SiteService;
 import com.admin.vo.Page;
 import com.admin.vo.Selector;
-import com.admin.vo.SiteVO;
+import com.admin.vo.WebSiteVO;
 import com.alibaba.fastjson.JSON;
+import com.spider.utils.DateUtils;
 
 /**
  * 获取数据
@@ -44,6 +47,7 @@ public class SiteController
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/getParentSiteList", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8;")
 	@ResponseBody
 	public String getParentSiteList(@RequestParam(defaultValue = "1", required = true, value = "page") int page,
@@ -52,10 +56,53 @@ public class SiteController
 		String json = "";
 		try
 		{
-			List<ParentSite> list = siteService.getParentSiteList((page - 1) * rows, rows);
+			List<WebSite> list = siteService.getParentSiteList((page - 1) * rows, rows);
 			if (null != list && list.size() > 0)
 			{
-				json = JSON.toJSONString(list);
+				List<WebSiteVO> results = new ArrayList<>();
+				for (WebSite site : list)
+				{
+					WebSiteVO vo = new WebSiteVO();
+					vo.setComment(site.getComment());
+					vo.setId(site.getId());
+					vo.setType(site.getType());
+					vo.setCycle(site.getCycle());
+					vo.setName(site.getName());
+					vo.setUrl(site.getUrl());
+					if(null!=site.getHeader())
+					{
+						Header header = site.getHeader();
+						vo.setThreads(StringUtils.isNotBlank(header.getThreads())?Integer.parseInt(header.getThreads()):10);
+					}
+					vo.setAddTime(DateUtils.format(site.getAddtime()));
+					List<Map<String, Object>> pageList = site.getPages();
+					if(null!=pageList && !pageList.isEmpty())
+					{
+						List<Page> pages = new ArrayList<>();
+						for (Map<String, Object> pageMap : pageList)
+						{
+							Page pageVO = new Page();
+							pageVO.setPriority((String)pageMap.getOrDefault("priority", "0"));
+							pageVO.setType((String)pageMap.get("type"));
+							Map<String, String> selectorMap = (Map<String, String>)pageMap.get("selector");
+							if(null!=selectorMap && !selectorMap.isEmpty())
+							{
+								List<Selector> selectors = new ArrayList<>();
+								for (Entry<String, String> entry : selectorMap.entrySet())
+								{
+									Selector selector = new Selector();
+									selector.setKey(entry.getKey());
+									selector.setValue(entry.getValue());
+									selectors.add(selector);
+								}
+								pageVO.setSelectors(selectors);
+							}
+						}
+						vo.setPages(pages);
+					}
+					results.add(vo);
+				}
+				json = JSON.toJSONString(results);
 			}
 		} catch (Exception e)
 		{
@@ -91,7 +138,7 @@ public class SiteController
 		String json = "";
 		try
 		{
-			List<ChildrenSite> list = siteService.getChildrenSiteList(pid, (page - 1) * rows, rows);
+			List<WebSite> list = siteService.getChildrenSiteList(pid, (page - 1) * rows, rows);
 			if (null != list && list.size() > 0)
 			{
 				json = JSON.toJSONString(list);
@@ -106,42 +153,41 @@ public class SiteController
 
 	@RequestMapping(value = "/saveChildrenSite", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8;")
 	@ResponseBody
-	public String saveChildrenSite(@RequestParam(required = true) String pid, String cname, String curl, String ctype,
-			String cSelectorKey1, String cSelectorKey2, String cSelectorKey3, String cSelectorValue1,
-			String cSelectorValue2, String cSelectorValue3, String ccomment, String ccycle)
+	public String saveChildrenSite(@RequestParam(required = true) String pid, WebSiteVO vo)
 	{
 		String json = "ok";
 		try
 		{
-			if (StringUtils.isNotBlank(curl) && StringUtils.isNotBlank(cname) && StringUtils.isNotBlank(ctype)
-					&& StringUtils.isNotBlank(cSelectorKey1) && StringUtils.isNotBlank(cSelectorValue1))
+			if(StringUtils.isNotBlank(pid) && null!=vo && StringUtils.isNotBlank(vo.getUrl()))
 			{
-				ChildrenSite object = new ChildrenSite();
-				object.setId(com.spider.utils.StringUtils.md5(curl));
-				object.setName(StringUtils.strip(cname));
-				object.setType(StringUtils.strip(ctype));
-				object.setUrl(StringUtils.strip(curl));
-				object.setAddtime(new Timestamp(new Date().getTime()));
-				object.setComment(ccomment);
-				object.setCycle(ccycle);
-				object.setPid(pid);
-				Map<String, String> selectors = new LinkedHashMap<>();
-				if (StringUtils.isNotBlank(cSelectorKey1) && StringUtils.isNotBlank(cSelectorValue1))
+				WebSite psite = siteService.getSite(pid);
+				if(null!=psite)
 				{
-					selectors.put(cSelectorKey1, StringUtils.strip(cSelectorValue1));
-				}
-				if (StringUtils.isNotBlank(cSelectorKey2) && StringUtils.isNotBlank(cSelectorValue2))
-				{
-					selectors.put(cSelectorKey2, StringUtils.strip(cSelectorValue2));
-				}
-				if (StringUtils.isNotBlank(cSelectorKey3) && StringUtils.isNotBlank(cSelectorValue3))
-				{
-					selectors.put(cSelectorKey3, StringUtils.strip(cSelectorValue3));
-				}
-				if (selectors.size() > 0)
-				{
-					// object.setSelectors(selectors);
-					siteService.save(object);
+					WebSite site = new WebSite();
+					Header header = new Header();
+					BeanUtils.copyProperties(site, psite);
+					String id = com.spider.utils.StringUtils.md5(vo.getUrl());
+					site.setId(id);
+					site.setPid(pid);
+					if(StringUtils.isNotBlank(vo.getName()))
+					{
+						site.setName(StringUtils.stripToEmpty(vo.getName()));
+					}
+					if(StringUtils.isNotBlank(vo.getComment()))
+					{
+						site.setComment(StringUtils.stripToEmpty(vo.getComment()));
+					}
+					site.setUrl(StringUtils.strip(vo.getUrl()));
+					if(StringUtils.isNotBlank(vo.getType()))
+					{
+						site.setType(vo.getType());
+					}
+					if(StringUtils.isNotBlank(vo.getCycle()))
+					{
+						site.setCycle(vo.getCycle());
+					}
+					site.setHeader(header);
+					site.setAddtime(new Timestamp(new Date().getTime()));
 				}
 			}
 		} catch (Exception e)
@@ -154,45 +200,47 @@ public class SiteController
 
 	@RequestMapping(value = "/saveParentSite", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8;")
 	@ResponseBody
-	public String saveParentSite(SiteVO vo)
+	public String saveParentSite(WebSiteVO vo)
 	{
 		String result = "error";
 		if (null != vo && StringUtils.isNotBlank(vo.getUrl()) && StringUtils.isNotBlank(vo.getName()))
 		{
 			try
 			{
-				ParentSite parentSite = new ParentSite();
-				parentSite.setId(com.spider.utils.StringUtils.md5(vo.getUrl()));
-				parentSite.setName(StringUtils.stripToEmpty(vo.getName()));
-				parentSite.setUrl(StringUtils.stripToEmpty(vo.getUrl()));
-				parentSite.setType(StringUtils.stripToEmpty(vo.getType()));
-				parentSite.setCycle(Integer.parseInt(StringUtils.stripToEmpty(vo.getCycle())));
-				parentSite.setComment(StringUtils.stripToEmpty(vo.getComment()));
-				parentSite.setAddtime(new Timestamp(System.currentTimeMillis()));
+				WebSite site = new WebSite();
+				Header header = new Header();
+				site.setId(com.spider.utils.StringUtils.md5(vo.getUrl()));
+				site.setName(StringUtils.stripToEmpty(vo.getName()));
+				site.setUrl(StringUtils.stripToEmpty(vo.getUrl()));
+				site.setType(StringUtils.stripToEmpty(vo.getType()));
+				site.setCycle(StringUtils.stripToEmpty(vo.getCycle()));
+				site.setComment(StringUtils.stripToEmpty(vo.getComment()));
+				site.setAddtime(new Timestamp(System.currentTimeMillis()));
 				if (StringUtils.isNotBlank(vo.getCharset()) && !vo.getCharset().equals("自动设置"))
 				{
-					parentSite.setCharset(vo.getCharset());
+					header.setCharset(vo.getCharset());
 				}
 				if (null != vo.getRetry() && vo.getRetry() > 0)
 				{
-					parentSite.setRetry(vo.getRetry());
+					header.setRetry(String.valueOf(vo.getRetry()));
 				}
 				if (null != vo.getSleep() && vo.getSleep() > 0)
 				{
-					parentSite.setSleep(vo.getSleep());
+					header.setSleep(String.valueOf(vo.getSleep()));
 				}
 				if (null != vo.getThreads() && vo.getThreads() > 0)
 				{
-					parentSite.setThreads(vo.getThreads());
+					header.setThreads(String.valueOf(vo.getThreads()));
 				}
 				if (null != vo.getTimeout() && vo.getTimeout() > 0)
 				{
-					parentSite.setTimeout(vo.getTimeout());
+					header.setTimeout(String.valueOf(vo.getTimeout()));
 				}
 				if (StringUtils.isNotBlank(vo.getCookie()))
 				{
-					parentSite.setCookie(vo.getCookie());
+					header.setCookie(vo.getCookie());
 				}
+				site.setHeader(header);
 				List<Map<String, Object>> pages = new ArrayList<>();
 				if (null != vo.getPages() && vo.getPages().size() > 0)
 				{
@@ -217,9 +265,9 @@ public class SiteController
 						}
 					}
 				}
-				parentSite.setPages(pages);
-				siteService.save(parentSite);
-				logger.info(String.format("父站点保存成功！%s", parentSite));
+				site.setPages(pages);
+				siteService.save(site);
+				logger.info(String.format("父站点保存成功！%s", site));
 				result = "ok";
 			} catch (Exception e)
 			{
@@ -237,7 +285,7 @@ public class SiteController
 		String result = "error";
 		if (StringUtils.isNotBlank(id))
 		{
-			boolean res = siteService.deleteParent(id);
+			boolean res = siteService.delete(id);
 			if (res)
 			{
 				logger.info(String.format("id:%s 父站点删除成功！", id));

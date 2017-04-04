@@ -6,7 +6,7 @@ import java.util.List;
  * 站点VO,用于传值
  * @date   2017年2月22日 下午2:47:51
  */
-public class SiteVO {
+public class WebSiteVO {
 	private String id;//站点id
 	
 	private String url;//url链接
@@ -14,6 +14,8 @@ public class SiteVO {
 	private String name;//站点名称
 	
 	private String comment;//备注,说明
+	
+	private String addTime;//添加时间
 	
 	private String type;//站点类型
 	
@@ -153,11 +155,13 @@ public class SiteVO {
 		this.retry = retry;
 	}
 
-	@Override
-	public String toString()
+	public String getAddTime()
 	{
-		return "SiteVO [id=" + id + ", url=" + url + ", name=" + name + ", comment=" + comment + ", type=" + type
-				+ ", cycle=" + cycle + ", threads=" + threads + ", cookie=" + cookie + ", charset=" + charset
-				+ ", sleep=" + sleep + ", timeout=" + timeout + ", retry=" + retry + ", pages=" + pages + "]";
+		return addTime;
+	}
+
+	public void setAddTime(String addTime)
+	{
+		this.addTime = addTime;
 	}
 }

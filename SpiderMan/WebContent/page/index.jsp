@@ -34,7 +34,7 @@
 	<div class="easyui-layout" data-options="fit:true">
 		<div data-options="region:'north',border:false" style="height: 50px">
 			<center>
-				<!-- <font size="6">爬虫管理后台</font> -->
+				<font size="6">爬虫后台管理系统</font>
 			</center>
 		</div>
 		<div data-options="region:'south',split:false,border:false" style="height: 50px;"></div>
