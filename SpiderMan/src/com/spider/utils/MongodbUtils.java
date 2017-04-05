@@ -61,18 +61,15 @@ public class MongodbUtils
 		{
 			morphia.mapPackage("com.admin.entity");
 			MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
-			builder.minConnectionsPerHost(100);
-			builder.connectionsPerHost(100);
+			builder.minConnectionsPerHost(10);
+			builder.connectionsPerHost(50);
 			builder.connectTimeout(1000 * 60);
 			builder.socketTimeout(1000 * 60);
 			builder.maxWaitTime(1000 * 60);
-			builder.threadsAllowedToBlockForConnectionMultiplier(5);
-			builder.maxConnectionIdleTime(1000 * 60 * 60);
-			builder.maxConnectionLifeTime(1000 * 60 * 60 * 2);
-			mongoClient = new MongoClient(
-					new ServerAddress(
-							new InetSocketAddress(ApplicationConstant.mongo_host, ApplicationConstant.mongo_port)),
-					builder.build());
+			builder.threadsAllowedToBlockForConnectionMultiplier(2);
+			builder.maxConnectionIdleTime(1000 * 60 * 60 * 6);
+			builder.maxConnectionLifeTime(1000 * 60 * 60 * 12);
+			mongoClient = new MongoClient(new ServerAddress(new InetSocketAddress(ApplicationConstant.mongo_host, ApplicationConstant.mongo_port)), builder.build());
 			datastore = morphia.createDatastore(mongoClient, ApplicationConstant.mongo_dbname);
 			datastore.ensureIndexes();
 			logger.info("morphia连接池初始化完毕！");
