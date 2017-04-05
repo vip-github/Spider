@@ -1,4 +1,4 @@
-package com;
+package com.common.constants;
 
 public class ApplicationConstant {
 	public static final String mongo_host = "localhost";

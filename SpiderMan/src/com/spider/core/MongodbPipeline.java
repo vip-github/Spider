@@ -6,8 +6,8 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.spider.utils.MongodbUtils;
-import com.spider.utils.StringUtils;
+import com.common.utils.MongodbUtils;
+import com.common.utils.StringUtils;
 
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;

@@ -26,7 +26,7 @@ import com.admin.vo.Page;
 import com.admin.vo.Selector;
 import com.admin.vo.WebSiteVO;
 import com.alibaba.fastjson.JSON;
-import com.spider.utils.DateUtils;
+import com.common.utils.DateUtils;
 
 /**
  * 获取数据
@@ -166,7 +166,7 @@ public class SiteController
 					WebSite site = new WebSite();
 					Header header = new Header();
 					BeanUtils.copyProperties(site, psite);
-					String id = com.spider.utils.StringUtils.md5(vo.getUrl());
+					String id = com.common.utils.StringUtils.md5(vo.getUrl());
 					site.setId(id);
 					site.setPid(pid);
 					if(StringUtils.isNotBlank(vo.getName()))
@@ -209,7 +209,7 @@ public class SiteController
 			{
 				WebSite site = new WebSite();
 				Header header = new Header();
-				site.setId(com.spider.utils.StringUtils.md5(vo.getUrl()));
+				site.setId(com.common.utils.StringUtils.md5(vo.getUrl()));
 				site.setName(StringUtils.stripToEmpty(vo.getName()));
 				site.setUrl(StringUtils.stripToEmpty(vo.getUrl()));
 				site.setType(StringUtils.stripToEmpty(vo.getType()));

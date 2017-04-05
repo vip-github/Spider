@@ -9,8 +9,8 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.common.utils.MongodbUtils;
 import com.google.common.base.Strings;
-import com.spider.utils.MongodbUtils;
 
 public class ImageSpiderWorker implements Runnable
 {

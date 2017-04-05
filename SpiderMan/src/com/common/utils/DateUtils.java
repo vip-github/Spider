@@ -1,4 +1,4 @@
-package com.spider.utils;
+package com.common.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

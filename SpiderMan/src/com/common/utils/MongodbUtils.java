@@ -1,4 +1,4 @@
-package com.spider.utils;
+package com.common.utils;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.mongodb.morphia.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ApplicationConstant;
+import com.common.constants.ApplicationConstant;
 import com.google.common.base.Strings;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;

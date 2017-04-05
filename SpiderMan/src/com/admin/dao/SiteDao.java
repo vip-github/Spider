@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.spider.utils.MongodbUtils;
+import com.common.utils.MongodbUtils;
 
 @Repository
 public class SiteDao

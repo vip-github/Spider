@@ -8,10 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.common.utils.DateUtils;
+import com.common.utils.MongodbUtils;
 import com.spider.bean.Job;
 import com.spider.formatter.DateFormatter;
-import com.spider.utils.DateUtils;
-import com.spider.utils.MongodbUtils;
 import com.spider.utils.SelectableUtils;
 
 import us.codecraft.webmagic.Page;
