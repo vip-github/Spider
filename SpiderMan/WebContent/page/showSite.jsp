@@ -316,7 +316,7 @@ function removeSelector(index){
 }
 
 function addSelector2(){
-	var content = "<div id='property'><br/><hr style='height:2px;border:none;border-top:2px dotted #185598;'/>属性名称：<input name='key' style='width:60px;margin-left:6px;'>&nbsp;属性抽取：<select style='margin-left:6px;'><option value='xpath' selected='selected'>xpath</option><option value='css'>css</option><option value='regex'>regex</option></select><input name='value' style='width:160px;margin-left:6px;'><select style='margin-left:6px;'><option value='css' selected='selected'>css</option><option value='xpath'>xpath</option><option value='regex'>regex</option></select><input name='value' style='width:160px;margin-left:6px;'><select style='margin-left:6px;'><option value='regex' selected='selected'>regex</option><option value='xpath'>xpath</option><option value='css'>css</option></select><input name='value' style='width:160px;margin-left:6px;'></div>";
+	var content = "<div id='property'><br/><hr style='height:2px;border:none;border-top:2px dotted #185598;'/>是否为List：<input type='checkbox' name='multi' style='margin-right:12px;'>属性名称：<input name='key' style='width:60px;margin-left:6px;margin-right:6px;'>&nbsp;属性抽取：<select style='margin-left:6px;'><option value='xpath' selected='selected'>xpath</option><option value='css'>css</option><option value='regex'>regex</option></select><input name='value' style='width:160px;margin-left:6px;'><select style='margin-left:6px;'><option value='css' selected='selected'>css</option><option value='xpath'>xpath</option><option value='regex'>regex</option></select><input name='value' style='width:160px;margin-left:6px;'><select style='margin-left:6px;'><option value='regex' selected='selected'>regex</option><option value='xpath'>xpath</option><option value='css'>css</option></select><input name='value' style='width:160px;margin-left:6px;'></div>";
 	$("#childrenDiv").append(content);
 }
 
@@ -450,7 +450,7 @@ function removeSelector2(){
 	 </form>
 </div>
 <div id="addChildrenSiteWindow" class="easyui-window" title="新增子站点" 
-        style="width:990px;height:580px;padding:10px;background:#fafafa;"
+        style="width:1100px;height:580px;padding:10px;background:#fafafa;"
         data-options="iconCls:'icon-add',closable:true,
                 collapsible:false,minimizable:false,maximizable:false,closed:true,modal:true">
      <form id="childrenSiteForm" method="post">

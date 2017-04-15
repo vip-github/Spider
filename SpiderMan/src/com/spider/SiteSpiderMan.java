@@ -7,7 +7,7 @@ public class SiteSpiderMan
 {
 	public static void main(String[] args)
 	{
-		String file = "E:/git/Spider/SpiderMan/resource/dd24.txt";
+		String file = "E:/git/Spider/SpiderMan/resource/example.txt";
 		SpiderMan spiderMan = new JsonJobSpiderMan(file);
 		spiderMan.run();
 	}
