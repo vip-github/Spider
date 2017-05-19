@@ -21,7 +21,8 @@ import us.codecraft.webmagic.Spider;
 public class JsonJobSpiderMan extends SpiderMan {
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 	JsonJobPageProcessor processor = new JsonJobPageProcessor();
-	MongodbPipeline pipeline = new MongodbPipeline();
+	MongodbPipeline mongodbPipeline = new MongodbPipeline();
+	KafkaPipeline kafkaPipeline = new KafkaPipeline();
 	ParseJob parseJob = new ParseJob();
 	private String configFilePath;
 	
@@ -58,7 +59,7 @@ public class JsonJobSpiderMan extends SpiderMan {
 					}
 					String[] urls = job.getLink().getUrl();
 					if(null!=urls && urls.length>0){
-						Spider.create(processor).addUrl(urls).addPipeline(pipeline).thread(Integer.parseInt(header.getThread())).run();
+						Spider.create(processor).addUrl(urls).addPipeline(kafkaPipeline).thread(Integer.parseInt(header.getThread())).run();
 					}
 				}
 			}
