@@ -1,4 +1,4 @@
-package zzyq.module.storm;
+package zzyq.module.storm.spout;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -28,7 +28,6 @@ public class KafkaSpout extends BaseRichSpout {
 	public void nextTuple() {
 		ConsumerRecords<String, Record> records = consumer.poll(100);
 		for (ConsumerRecord<String, Record> record : records) {
-			// 正常这里应该使用线程池处理，不应该在这里处理
 			collector.emit(new Values(record.value()));
 		}
 	}

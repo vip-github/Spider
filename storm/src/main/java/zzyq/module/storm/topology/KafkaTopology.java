@@ -1,9 +1,12 @@
-package zzyq.module.storm;
+package zzyq.module.storm.topology;
 
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
 import org.apache.storm.topology.TopologyBuilder;
+
+import zzyq.module.storm.bolt.KafkaBolt;
+import zzyq.module.storm.spout.KafkaSpout;
 
 public class KafkaTopology {
 	public static void main(String[] args) throws Exception {

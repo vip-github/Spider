@@ -1,4 +1,4 @@
-package zzyq.module.storm;
+package zzyq.module.storm.bolt;
 
 import java.util.Map;
 
